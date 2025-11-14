@@ -1,0 +1,61 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+env/
+ENV/
+*.egg-info/
+dist/
+build/
+
+# Environment variables
+.env
+*.env
+!.env.example
+!backend/.env.docker
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Logs
+*.log
+logs/
+
+# Node.js (for frontend)
+node_modules/
+.next/
+out/
+.turbo/
+.vercel/
+*.tsbuildinfo
+
+# Production
+build/
+dist/
+.next/
+
+# ICC Scraper
+backend/icc_credentials.env
+backend/scripts/*_scraped.json
+backend/scripts/*.json
+!backend/scripts/chapter_links.txt
+backend/scripts/extracted_data/
+backend/scripts/extraction_log.txt

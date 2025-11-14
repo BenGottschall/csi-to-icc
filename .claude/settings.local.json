@@ -1,0 +1,23 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(psql:*)",
+      "Bash(createdb:*)",
+      "Bash(curl:*)",
+      "Bash(python -m json.tool:*)",
+      "Bash(npx create-next-app@latest:*)",
+      "Bash(npx:*)",
+      "Bash(npm install)",
+      "Bash(source venv/bin/activate)",
+      "Bash(pip install:*)",
+      "Bash(python:*)",
+      "WebFetch(domain:codes.iccsafe.org)",
+      "Bash(rm:*)",
+      "Bash(docker compose:*)",
+      "Bash(cat:*)",
+      "Bash(python3:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

@@ -1,0 +1,22 @@
+{
+  "csi_code": {
+    "code": "03 30 00",
+    "division": 3,
+    "title": "Cast-in-Place Concrete",
+    "description": "Concrete formwork, reinforcement, and cast-in-place concrete"
+  },
+  "icc_document": {
+    "code": "IBC",
+    "year": 2024,
+    "title": "International Building Code",
+    "state": null,
+    "base_url": "https://codes.iccsafe.org/content/IBC2024"
+  },
+  "icc_section": {
+    "section_number": "1905.2",
+    "title": "Minimum Specified Compressive Strength",
+    "chapter": 19,
+    "url": "https://codes.iccsafe.org/content/IBC2024/chapter-19-concrete#IBC2024_Pt05_Ch19_Sec1905.2",
+    "description": "Requirements for concrete compressive strength"
+  }
+}

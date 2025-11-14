@@ -1,6 +1,6 @@
 # CSI to ICC Code Mapping Tool
 
-A web application that helps civil engineers and construction professionals quickly map CSI MasterFormat codes to relevant ICC (International Code Council) building code sections.
+A web application that helps civil engineering students quickly map CSI MasterFormat codes to relevant ICC (International Code Council) building code sections.
 
 ## Problem
 
@@ -104,7 +104,6 @@ The application uses five main tables:
 4. **csi_icc_mappings** - Relationships between CSI and ICC codes
 5. **state_amendments** - State-specific code modifications
 
-See `CLAUDE.md` for detailed schema information.
 
 ## Development
 
@@ -119,7 +118,6 @@ alembic upgrade head
 pytest
 ```
 
-See `CLAUDE.md` for detailed project documentation and architecture.
 
 ## Data Population
 

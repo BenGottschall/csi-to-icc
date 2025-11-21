@@ -1,6 +1,7 @@
 """
 Main FastAPI application for CSI to ICC Code Mapping.
 """
+import os
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from .database import engine, Base
@@ -18,10 +19,11 @@ app = FastAPI(
     redoc_url="/api/redoc",
 )
 
-# Configure CORS
+# Configure CORS - read from environment variable (comma-separated)
+cors_origins = os.getenv("CORS_ORIGINS", "http://localhost:3000,http://localhost:5173")
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000", "http://localhost:5173"],  # Frontend URLs
+    allow_origins=[origin.strip() for origin in cors_origins.split(",")],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

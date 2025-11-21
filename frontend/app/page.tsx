@@ -2,6 +2,8 @@
 
 import { useState, useEffect } from 'react';
 
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+
 interface ICCDocument {
   id: number;
   code: string;
@@ -44,7 +46,7 @@ export default function Home() {
 
   // Fetch available ICC documents on mount
   useEffect(() => {
-    fetch('http://localhost:8000/api/icc-documents')
+    fetch(`${API_URL}/api/icc-documents`)
       .then(res => res.json())
       .then((docs: ICCDocument[]) => {
         setAvailableDocuments(docs);
@@ -66,7 +68,7 @@ export default function Home() {
     const [docCode, docYear] = selectedDocument.split('|');
 
     try {
-      const response = await fetch('http://localhost:8000/api/search', {
+      const response = await fetch(`${API_URL}/api/search`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

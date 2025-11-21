@@ -53,15 +53,14 @@ RUN pip install -r requirements.txt
 # Copy application code
 COPY --chown=appuser:appuser . .
 
+# Make start script executable
+RUN chmod +x start.sh
+
 # Switch to non-root user
 USER appuser
 
-# Expose port
+# Expose port (Railway uses $PORT)
 EXPOSE 8000
 
-# Health check
-HEALTHCHECK --interval=30s --timeout=3s --start-period=40s --retries=3 \
-    CMD python -c "import requests; requests.get('http://localhost:8000/health')" || exit 1
-
-# Run application
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000", "--workers", "4"]
+# Run application with migrations
+CMD ["./start.sh"]

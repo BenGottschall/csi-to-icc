@@ -21,11 +21,12 @@ This is a web application that helps civil engineers and construction profession
 - **Migrations**: Alembic
 - **Validation**: Pydantic v2
 
-### Frontend (To Be Implemented)
-- **Framework**: Next.js 14
+### Frontend
+- **Framework**: Next.js 15 (App Router)
 - **Language**: TypeScript
-- **Styling**: Tailwind CSS
-- **HTTP Client**: fetch/Axios
+- **UI Library**: React 19
+- **Styling**: Tailwind CSS 3.4.1
+- **HTTP Client**: fetch API
 
 ## Project Structure
 
@@ -36,22 +37,81 @@ csi-to-icc/
 │   │   ├── __init__.py
 │   │   ├── main.py              # FastAPI application entry point
 │   │   ├── database.py          # Database connection & session management
-│   │   ├── models.py            # SQLAlchemy ORM models
+│   │   ├── models.py            # SQLAlchemy ORM models (5 tables)
 │   │   ├── schemas.py           # Pydantic schemas for API validation
 │   │   ├── crud.py              # Database CRUD operations
 │   │   └── routers/
 │   │       ├── __init__.py
-│   │       └── codes.py         # API endpoints for CSI/ICC codes
+│   │       └── codes.py         # API endpoints (21 endpoints)
+│   ├── scripts/
+│   │   ├── ipc_scraper_all.py   # Selenium-based ICC code scraper
+│   │   ├── populate_icc_data.py # Database population from JSON
+│   │   ├── populate_all_chapters.py  # Batch chapter processor
+│   │   ├── extracted_data/
+│   │   │   └── ipc_2018/        # 13 chapters of IPC 2018 (JSON)
+│   │   ├── icc_credentials.env  # ICC login credentials (not in git)
+│   │   └── README.md            # Scraper setup & usage guide
 │   ├── alembic/                 # Database migrations
+│   │   └── versions/
+│   │       └── bc374c7d93a2_initial_schema.py
 │   ├── venv/                    # Python virtual environment (not in git)
 │   ├── requirements.txt         # Python dependencies
+│   ├── add_sample_data.py       # Test data population script
 │   ├── .env.example             # Environment variables template
 │   └── .env                     # Actual environment variables (not in git)
-├── frontend/                    # Next.js application (to be created)
+├── frontend/
+│   ├── app/
+│   │   ├── page.tsx             # Main search interface (288 lines)
+│   │   ├── layout.tsx           # Root layout
+│   │   └── globals.css          # Tailwind configuration
+│   ├── package.json             # Next.js 15, React 19, Tailwind 3.4
+│   └── tailwind.config.ts       # Custom engineering-themed colors
+├── docker-compose.yml           # Production Docker setup
+├── docker-compose.dev.yml       # Development Docker setup
+├── Makefile                     # Development commands
+├── DOCKER.md                    # Docker deployment guide
 ├── .gitignore
 ├── CLAUDE.md                    # This file
 └── README.md                    # User-facing documentation
 ```
+
+## Frontend Implementation
+
+### Search Interface (`app/page.tsx`)
+**Features**:
+- 3-field search form:
+  - CSI Code input (required, e.g., "03 30 00")
+  - State filter (optional, 2-letter format like "CO", "CA")
+  - Year dropdown (optional, 2024/2021/2018)
+- Real-time validation and error handling
+- Loading states with spinner animation
+- Empty state with example code suggestion
+
+**Results Display**:
+- CSI code information card (code, division, title, description)
+- List of related ICC code sections
+- Each section shows:
+  - Document code and year (e.g., "IPC 2018")
+  - Chapter number
+  - Section number and title
+  - Description text
+  - Direct link to codes.iccsafe.org
+
+**Design**:
+- Custom Tailwind color palette:
+  - Primary: Sky blue (#0ea5e9) - engineering/blueprint inspired
+  - Accent: Construction orange (#f97316)
+  - Neutral: Slate grays for professional look
+- Responsive layout (mobile-first, tablet, desktop)
+- Card-based design with shadows and borders
+- Custom scrollbar styling
+- Hover states and interactive elements
+
+**API Integration**:
+- Connects to backend at `http://localhost:8000`
+- Uses fetch API for POST requests to `/api/search`
+- Error handling for network failures and API errors
+- Type-safe TypeScript interfaces for API responses
 
 ## Database Schema
 
@@ -123,28 +183,113 @@ csi-to-icc/
 
 ## Development Approach
 
-### Phase 1: MVP (Current)
-✅ Backend API structure
-✅ Database schema
+### Phase 1: MVP (Mostly Complete)
+✅ Backend API structure (21 endpoints)
+✅ Database schema (5 tables with migrations)
 ✅ Basic CRUD operations
-⏳ Frontend (Next.js)
-⏳ Initial data population (10-20 mappings)
+✅ Frontend UI (search interface with results display)
+✅ IPC 2018 data extraction (13 chapters, 200+ sections)
+✅ Docker deployment setup
+⏳ CSI-to-ICC mapping population (sample data only)
+⏳ Additional ICC codes (IBC, IRC, IECC, etc.)
 
-### Phase 2: Data Population
-- Manually create mappings for common CSI codes
+### Phase 2: Data Population (In Progress)
+- ✅ IPC 2018 scraping complete (13 chapters extracted, 1,087 sections loaded)
+- ✅ CSI MasterFormat 2016 codes loaded (8,778 codes across all hierarchy levels)
+- ⏳ Create CSI-to-IPC mappings (with expert verification)
+- ⏳ Scrape additional ICC codes (IBC, IRC, IECC)
+- ⏳ Add state-specific amendments
 - Use LLMs to suggest mappings (with expert verification)
-- Focus on most-used divisions (concrete, steel, wood, etc.)
+- Focus on most-used divisions (concrete, steel, wood, plumbing, etc.)
 
-### Phase 3: Features
+### Phase 3: Enhanced Features
 - Natural language search
 - User accounts and saved searches
 - Community contributions (with moderation)
-- Export functionality
+- Export functionality (CSV, PDF reports)
+- Full-text search optimization
+- Caching layer (Redis)
+- Analytics dashboard
+
+## Data Extraction & Population
+
+### IPC 2018 (Completed)
+**Status**: ✅ Full extraction complete
+
+**Scraped Data**:
+- 13 chapters from 2018 International Plumbing Code
+- 200+ code sections with descriptions
+- Direct URLs to codes.iccsafe.org for each section
+- Stored as JSON files in `backend/scripts/extracted_data/ipc_2018/`
+
+**Chapters Extracted**:
+1. Scope and Administration
+2. (Definitions - skipped by design)
+3. General Requirements
+4. Definitions
+5. Materials
+6. Water Supply and Distribution (largest, 1606 lines)
+7. Sanitary Drainage
+8. Vents
+9. Inspection, Testing, and Procedures
+10. Water Heaters
+11. Energy Efficiency
+12. Exterior Walls
+13. Roof Assemblies
+14. Referenced Standards
+
+**Scraping Approach**:
+- Selenium WebDriver with headless Chrome
+- Parses codes.iccsafe.org JavaScript-rendered content
+- 10-second wait times for dynamic content loading
+- Detailed logging per chapter
+- Handles authentication (requires ICC account)
+- No login required (public access mode used)
+
+**Scripts**:
+- `ipc_scraper_all.py` - Main scraper (multi-chapter)
+- `populate_icc_data.py` - Database population from JSON
+- `populate_all_chapters.py` - Batch processor
+- `backend/scripts/README.md` - 347-line setup guide
+
+### CSI MasterFormat 2016 (Completed)
+**Status**: ✅ Full population complete
+
+**Data Source**:
+- GitHub repository: [outer-labs/masterformat-json](https://github.com/outer-labs/masterformat-json)
+- License: MIT (free to use)
+- Version: MasterFormat 2016 Edition
+- Supplemented with scraped data from CSI widget for intermediate hierarchy levels
+
+**Loaded Data**:
+- **8,778 unique codes** across all hierarchy levels:
+  - Division level (35 codes): 00 00 00, 03 00 00, 22 00 00, etc.
+  - Subdivision level (~400 codes): 03 30 00, 22 07 00, etc.
+  - Detail/leaf level (~8,300 codes): 03 31 13, 22 07 19, etc.
+
+**Data Structure**:
+- Three-level hierarchy matching official CSI MasterFormat organization
+- Each code includes: code number, division, title, and description
+- Covers all 48 divisions (00-48)
+
+**Scripts**:
+- `csi_scraper.py` - Scraper for CSI widget (used for divisions and subdivisions)
+- `populate_csi_codes.py` - Database population from multiple JSON sources
+- Combined data from GitHub JSON and scraped intermediate levels
+
+**Note**: This version uses MasterFormat 2016 Edition. While not the absolute latest, it provides comprehensive coverage of 8,778 codes and is suitable for production use. Future updates may incorporate MasterFormat 2020 or later editions as machine-readable formats become available.
+
+### Future Data Extraction
+- IBC (International Building Code) - 2018, 2021, 2024
+- IRC (International Residential Code)
+- IECC (International Energy Conservation Code)
+- IMC (International Mechanical Code)
+- State-specific amendments and adoptions
 
 ## Data Sources
 
 ### Legal & Available
-- **codes.iccsafe.org** - Free public access to ICC codes
+- **codes.iccsafe.org** - Free public access to ICC codes (requires account)
 - State government websites - Many publish adopted codes
 - Your friend's expertise - Initial mappings
 - LLMs - Draft suggestions (must be verified)
@@ -154,18 +299,38 @@ csi-to-icc/
 - We link to official sources rather than hosting content
 - State amendments are often public domain
 - Manual verification is essential for accuracy
+- Scraping is done ethically (public access, rate-limited)
 
 ## Development Setup
 
 See README.md for setup instructions.
 
+### Running Scripts Against Docker Database
+
+When running population scripts locally (e.g., `populate_csi_codes.py`), they use the `DATABASE_URL` from your local `.env` file by default. To populate the **Docker container's database**, explicitly set the URL:
+
+```bash
+cd backend
+DATABASE_URL="postgresql://postgres:postgres@localhost:5432/csi_icc_db" python scripts/populate_csi_codes.py
+DATABASE_URL="postgresql://postgres:postgres@localhost:5432/csi_icc_db" python scripts/populate_all_chapters.py
+```
+
+### Data Persistence
+
+- Data persists across `make dev-down` / `make dev` cycles (uses named volume `postgres_data_dev`)
+- Only `make clean` or `make clean-volumes` will delete the database volume and data
+
 ## Key Design Decisions
 
-1. **Approach 1 (Direct Linking)**: We map CSI codes to ICC section URLs rather than scraping/hosting content
-2. **PostgreSQL**: Chosen for robust relational data handling and future scalability
-3. **FastAPI**: Modern Python framework with auto-generated API docs
-4. **Alembic**: Database version control for schema changes
-5. **Pydantic v2**: Type-safe API validation
+1. **Direct Linking Model**: Map CSI codes to ICC section URLs rather than hosting copyrighted content
+2. **Selenium-Based Scraping**: Use Selenium WebDriver to extract data from JavaScript-rendered pages on codes.iccsafe.org
+3. **PostgreSQL**: Robust relational database with full-text search capabilities
+4. **FastAPI**: Modern async Python framework with auto-generated API docs (OpenAPI/Swagger)
+5. **Alembic**: Database version control for reproducible schema migrations
+6. **Pydantic v2**: Type-safe API validation and serialization
+7. **Next.js 15 App Router**: Server-side rendering, static generation, and optimal performance
+8. **Modular Scripts**: Separate extraction (scraping) and population (database) for flexibility
+9. **Docker Compose**: Containerized deployment for development and production environments
 
 ## Future Considerations
 
@@ -182,13 +347,53 @@ See README.md for setup instructions.
 - Manual testing with real CSI codes
 - Expert validation of mappings
 
-## Deployment (Future)
+## Deployment
 
-- **Backend**: Railway, Render, or DigitalOcean
-- **Frontend**: Vercel (optimized for Next.js)
-- **Database**: Managed PostgreSQL
-- **CI/CD**: GitHub Actions
+### Current Setup (Docker)
+- **Development**: `docker-compose.dev.yml` with hot-reload
+- **Production**: `docker-compose.yml` with optimized builds
+- **Makefile Commands**: `make dev`, `make up`, `make logs`, etc.
+- **Database**: PostgreSQL container with persistent volume
+- **Documentation**: See DOCKER.md for full deployment guide
+
+### Future Cloud Deployment
+- **Backend**: Railway, Render, or DigitalOcean App Platform
+- **Frontend**: Vercel (optimized for Next.js) or Netlify
+- **Database**: Managed PostgreSQL (AWS RDS, DigitalOcean, Supabase)
+- **CI/CD**: GitHub Actions for automated testing and deployment
+- **Monitoring**: Sentry for error tracking, Plausible for analytics
+
+## Current Project Status
+
+### What's Working ✅
+- **Backend API**: All 21 endpoints functional with auto-generated docs
+- **Database**: 5 tables with proper relationships and indexes
+- **Frontend UI**: Complete search interface with results display
+- **IPC 2018 Data**: 1,087 sections loaded into database
+- **CSI MasterFormat 2016**: 8,778 codes loaded across all hierarchy levels
+- **Docker Setup**: Development and production environments configured
+- **Scraping Infrastructure**: Selenium-based scraper with comprehensive documentation
+- **Search Functionality**: Full-stack search working (tested with sample data)
+
+### What Needs Work ⏳
+- **Mappings**: No CSI-to-ICC mappings exist yet (this is the critical next step!)
+- **Additional ICC Codes**: Only IPC 2018 loaded, need IBC, IRC, IECC, IMC
+- **State Amendments**: No state-specific code modifications yet
+- **Testing**: Unit and integration tests not implemented
+- **Production Deployment**: Currently only Docker setup, no cloud deployment
+- **Data Currency**: Using MasterFormat 2016 (consider updating to 2020+ when available)
+
+### Next Steps (Priority Order)
+1. **Create Mappings**: Build CSI-to-IPC relationships (requires expert validation from your friend!)
+2. **Test with Real Searches**: Have your friend test searches with common CSI codes
+3. **Scrape Additional ICC Codes**: Add IBC, IRC, IECC for broader coverage
+4. **Add More Mappings**: Expand beyond plumbing to other divisions
+5. **Add State Data**: Research and add state-specific amendments
+6. **Deploy to Cloud**: Move from local Docker to hosted environment
 
 ## Contact & Collaboration
 
 This is a personal project built to help a friend in civil engineering. The goal is to create a genuinely useful tool while building a portfolio-worthy full-stack application.
+
+**Tech Stack Summary**: FastAPI + PostgreSQL + Next.js 15 + Docker
+**Current Phase**: Transitioning from Phase 1 (MVP) to Phase 2 (Data Population)

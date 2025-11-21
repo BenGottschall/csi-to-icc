@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 interface ICCDocument {
   id: number;
@@ -36,17 +36,34 @@ interface SearchResult {
 
 export default function Home() {
   const [csiCode, setCsiCode] = useState('');
-  const [state, setState] = useState('');
-  const [year, setYear] = useState('2024');
+  const [selectedDocument, setSelectedDocument] = useState('');
+  const [availableDocuments, setAvailableDocuments] = useState<ICCDocument[]>([]);
   const [results, setResults] = useState<SearchResult | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+
+  // Fetch available ICC documents on mount
+  useEffect(() => {
+    fetch('http://localhost:8000/api/icc-documents')
+      .then(res => res.json())
+      .then((docs: ICCDocument[]) => {
+        setAvailableDocuments(docs);
+        // Default to first document if available
+        if (docs.length > 0) {
+          setSelectedDocument(`${docs[0].code}|${docs[0].year}`);
+        }
+      })
+      .catch(err => console.error('Failed to fetch ICC documents:', err));
+  }, []);
 
   const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setError('');
     setResults(null);
+
+    // Parse selected document (format: "IPC|2018")
+    const [docCode, docYear] = selectedDocument.split('|');
 
     try {
       const response = await fetch('http://localhost:8000/api/search', {
@@ -56,8 +73,8 @@ export default function Home() {
         },
         body: JSON.stringify({
           csi_code: csiCode,
-          state: state || null,
-          year: year ? parseInt(year) : null,
+          icc_document: docCode || null,
+          year: docYear ? parseInt(docYear) : null,
         }),
       });
 
@@ -106,7 +123,7 @@ export default function Home() {
           <h2 className="text-lg font-semibold text-neutral-900 mb-4">Search CSI Code</h2>
 
           <form onSubmit={handleSearch} className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {/* CSI Code Input */}
               <div>
                 <label htmlFor="csi-code" className="block text-sm font-medium text-neutral-700 mb-1">
@@ -123,37 +140,22 @@ export default function Home() {
                 />
               </div>
 
-              {/* State Filter */}
+              {/* ICC Document Selection */}
               <div>
-                <label htmlFor="state" className="block text-sm font-medium text-neutral-700 mb-1">
-                  State (Optional)
-                </label>
-                <input
-                  id="state"
-                  type="text"
-                  value={state}
-                  onChange={(e) => setState(e.target.value.toUpperCase())}
-                  placeholder="e.g., CO, NY"
-                  maxLength={2}
-                  className="w-full px-4 py-2 border border-neutral-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none transition"
-                />
-              </div>
-
-              {/* Year Filter */}
-              <div>
-                <label htmlFor="year" className="block text-sm font-medium text-neutral-700 mb-1">
-                  Year (Optional)
+                <label htmlFor="icc-document" className="block text-sm font-medium text-neutral-700 mb-1">
+                  ICC Document
                 </label>
                 <select
-                  id="year"
-                  value={year}
-                  onChange={(e) => setYear(e.target.value)}
+                  id="icc-document"
+                  value={selectedDocument}
+                  onChange={(e) => setSelectedDocument(e.target.value)}
                   className="w-full px-4 py-2 border border-neutral-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none transition bg-white"
                 >
-                  <option value="">All Years</option>
-                  <option value="2024">2024</option>
-                  <option value="2021">2021</option>
-                  <option value="2018">2018</option>
+                  {availableDocuments.map((doc) => (
+                    <option key={doc.id} value={`${doc.code}|${doc.year}`}>
+                      {doc.code} {doc.year}
+                    </option>
+                  ))}
                 </select>
               </div>
             </div>
@@ -279,6 +281,10 @@ export default function Home() {
             CSI MasterFormat to ICC Code Mapping Tool • Data sourced from{' '}
             <a href="https://codes.iccsafe.org" target="_blank" rel="noopener noreferrer" className="text-primary-600 hover:text-primary-700 font-medium">
               codes.iccsafe.org
+            </a>
+            and{' '}
+            <a href="https://crmservice.csinet.org/widgets/masterformat/numbersandtitles.aspx" target="_blank" rel="noopener noreferrer" className="text-prinary-600 hover:text-primary-700 font-medium">
+              crmservice.csinet.org
             </a>
           </p>
         </div>

@@ -1,7 +1,7 @@
 """
 Pydantic schemas for API request/response validation.
 """
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
 from typing import Optional, List
 from datetime import datetime, date
 
@@ -74,6 +74,18 @@ class ICCSection(ICCSectionBase):
 
     class Config:
         from_attributes = True
+
+    @field_validator('description', mode='before')
+    @classmethod
+    def truncate_description(cls, v: Optional[str]) -> Optional[str]:
+        """Truncate description for copyright compliance."""
+        if v is None:
+            return None
+        max_words = 12
+        words = v.split()
+        if len(words) <= max_words:
+            return v
+        return ' '.join(words[:max_words]) + '...'
 
 
 # Mapping Schemas
@@ -148,3 +160,4 @@ class SearchResult(BaseModel):
     csi_code: CSICode
     icc_sections: List[ICCSectionWithDocument]
     total_results: int
+    source: Optional[str] = Field(None, description="Source of results: 'manual_mappings', 'keyword_matching', or 'no_mappings'")

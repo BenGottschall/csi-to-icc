@@ -349,51 +349,58 @@ DATABASE_URL="postgresql://postgres:postgres@localhost:5432/csi_icc_db" python s
 
 ## Deployment
 
-### Current Setup (Docker)
+### Production (Railway) ✅
+- **Live URL**: https://csimap.up.railway.app/
+- **Backend**: FastAPI on Railway (https://csi-to-icc-backend-production.up.railway.app)
+- **Frontend**: Next.js 15 on Railway
+- **Database**: Managed PostgreSQL on Railway
+- **Deployment**: Automatic deploys from main branch via GitHub integration
+- **Environment Variables**: Configured with Railway service references for dynamic URLs
+
+### Local Development (Docker)
 - **Development**: `docker-compose.dev.yml` with hot-reload
 - **Production**: `docker-compose.yml` with optimized builds
 - **Makefile Commands**: `make dev`, `make up`, `make logs`, etc.
 - **Database**: PostgreSQL container with persistent volume
 - **Documentation**: See DOCKER.md for full deployment guide
 
-### Future Cloud Deployment
-- **Backend**: Railway, Render, or DigitalOcean App Platform
-- **Frontend**: Vercel (optimized for Next.js) or Netlify
-- **Database**: Managed PostgreSQL (AWS RDS, DigitalOcean, Supabase)
-- **CI/CD**: GitHub Actions for automated testing and deployment
-- **Monitoring**: Sentry for error tracking, Plausible for analytics
-
 ## Current Project Status
 
+### Production Status: LIVE ✅
+**Public URL**: https://csimap.up.railway.app/
+
 ### What's Working ✅
-- **Backend API**: All 21 endpoints functional with auto-generated docs
-- **Database**: 5 tables with proper relationships and indexes
-- **Frontend UI**: Complete search interface with results display
-- **IPC 2018 Data**: 1,087 sections loaded into database
+- **Backend API**: All 21 endpoints functional, deployed on Railway
+- **Frontend**: Full search interface live with keyword-based matching
+- **Database**: 5 tables with proper relationships, hosted on Railway PostgreSQL
+- **IPC 2018 Data**: 1,087 sections fully loaded and searchable
 - **CSI MasterFormat 2016**: 8,778 codes loaded across all hierarchy levels
 - **Docker Setup**: Development and production environments configured
 - **Scraping Infrastructure**: Selenium-based scraper with comprehensive documentation
-- **Search Functionality**: Full-stack search working (tested with sample data)
+- **Search Functionality**: Working end-to-end with keyword fallback (validated by users!)
+- **Production Deployment**: Live on Railway with automatic GitHub deploys
 
 ### What Needs Work ⏳
-- **Mappings**: No CSI-to-ICC mappings exist yet (this is the critical next step!)
-- **Additional ICC Codes**: Only IPC 2018 loaded, need IBC, IRC, IECC, IMC
+- **Expert Mappings**: Manual CSI-to-ICC relationships (requires domain expert validation)
+- **Additional ICC Codes**: Only IPC 2018 loaded, need IBC, IRC, IECC, IMC (high priority)
 - **State Amendments**: No state-specific code modifications yet
 - **Testing**: Unit and integration tests not implemented
-- **Production Deployment**: Currently only Docker setup, no cloud deployment
 - **Data Currency**: Using MasterFormat 2016 (consider updating to 2020+ when available)
+- **Search Refinement**: Improve keyword matching algorithm with synonyms and weighting
 
 ### Next Steps (Priority Order)
-1. **Create Mappings**: Build CSI-to-IPC relationships (requires expert validation from your friend!)
-2. **Test with Real Searches**: Have your friend test searches with common CSI codes
-3. **Scrape Additional ICC Codes**: Add IBC, IRC, IECC for broader coverage
-4. **Add More Mappings**: Expand beyond plumbing to other divisions
-5. **Add State Data**: Research and add state-specific amendments
-6. **Deploy to Cloud**: Move from local Docker to hosted environment
+1. **Add IBC 2024/2021**: Most commonly used ICC code, critical for expansion
+2. **Create Expert Mappings**: Build CSI-to-ICC relationships with professional validation
+3. **Add IRC and IMC**: Expand coverage to residential and mechanical codes
+4. **Implement Analytics**: Track popular searches to prioritize mapping efforts
+5. **Add State Amendments**: Research and add state-specific modifications
+6. **User Accounts**: Optional login for saved searches and personal notes
+
+See [TODO.md](TODO.md) for the full roadmap.
 
 ## Contact & Collaboration
 
-This is a personal project built to help a friend in civil engineering. The goal is to create a genuinely useful tool while building a portfolio-worthy full-stack application.
+This is a personal project built to help construction professionals and civil engineers work more efficiently.
 
-**Tech Stack Summary**: FastAPI + PostgreSQL + Next.js 15 + Docker
-**Current Phase**: Transitioning from Phase 1 (MVP) to Phase 2 (Data Population)
+**Tech Stack Summary**: FastAPI + PostgreSQL + Next.js 15 + Railway
+**Current Phase**: Phase 2 (Data Expansion & Mapping Enhancement)

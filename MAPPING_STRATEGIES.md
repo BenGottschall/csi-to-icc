@@ -1,12 +1,14 @@
 # CSI-to-ICC Mapping Strategies
 
-This document outlines different approaches for creating mappings between CSI MasterFormat codes and ICC code sections, optimized for a $0-20 budget.
+This document outlines different approaches for creating mappings between CSI MasterFormat codes and ICC code sections.
+
+> **Status Update (Nov 2025):** Option 1 (Keyword Matching) has been implemented and is live in production at [csimap.up.railway.app](https://csimap.up.railway.app/). User feedback indicates it works surprisingly well as a baseline!
 
 ## Current Data
-- **CSI Codes**: 8,778 codes (MasterFormat 2016)
-- **ICC Sections**: 1,087 IPC 2018 sections
-- **Existing Mappings**: 2 (sample data)
-- **Target**: Create meaningful mappings without manual effort
+- **CSI Codes**: 8,778 codes (MasterFormat 2016) ✅ Loaded
+- **ICC Sections**: 1,087 IPC 2018 sections ✅ Loaded
+- **Search Method**: Keyword matching (fallback when no manual mappings exist) ✅ Implemented
+- **Next Goal**: Add IBC, IRC, IMC codes and create expert-validated mappings
 
 ---
 

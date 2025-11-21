@@ -1,131 +1,81 @@
-# CSI to ICC Code Mapping Tool
+# CSI to ICC Code Mapper
 
-A web application that helps civil engineering students quickly map CSI MasterFormat codes to relevant ICC (International Code Council) building code sections.
+**🔗 Live App: [csimap.up.railway.app](https://csimap.up.railway.app/)**
 
-## Problem
+A web tool that helps construction professionals and civil engineers quickly map CSI MasterFormat specification codes to relevant ICC (International Code Council) building code sections.
 
-Converting CSI specification codes to ICC compliance requirements is a manual, time-consuming process that requires:
-- Extensive knowledge of both systems
-- Cross-referencing multiple documents
-- Tracking state-specific amendments
-- Staying current with code updates
+## The Problem
 
-## Solution
+Converting CSI specification codes to ICC compliance requirements is tedious and time-consuming:
+- Requires extensive knowledge of both coding systems
+- Involves manually cross-referencing multiple documents
+- Takes valuable time away from actual design and engineering work
 
-This tool provides:
-- **Quick lookup**: Enter a CSI code and instantly see relevant ICC sections
-- **Smart filtering**: Filter by state, year, and ICC document type
-- **Direct links**: Jump straight to official ICC documentation
-- **State amendments**: See state-specific code modifications
+## The Solution
+
+Enter a CSI code, get relevant ICC code sections instantly:
+- ✅ **Fast search** - Find ICC sections in seconds, not hours
+- ✅ **Smart matching** - Keyword-based search finds relevant sections automatically
+- ✅ **Direct links** - Jump straight to official ICC documentation
+- ✅ **Filter by document** - Search within specific ICC codes (IPC, IBC, etc.)
+
+## How It Works
+
+1. **Enter a CSI code** (e.g., "03 30 00" for Cast-in-Place Concrete)
+2. **Select an ICC document** (currently IPC 2018, more coming soon)
+3. **Get results** - See matching ICC sections with descriptions and direct links
+
+## Current Data
+
+- **8,778 CSI MasterFormat 2016 codes** across all divisions
+- **1,087 IPC 2018 sections** (International Plumbing Code)
+- More ICC documents coming soon (IBC, IRC, IECC, IMC)
 
 ## Tech Stack
 
-### Backend
-- Python 3.13+ with FastAPI
-- PostgreSQL database
-- SQLAlchemy ORM
-- Alembic migrations
+**Backend:** Python, FastAPI, PostgreSQL
+**Frontend:** Next.js 15, TypeScript, Tailwind CSS
+**Hosting:** Railway
 
-### Frontend
-- Next.js 15 with TypeScript
-- Tailwind CSS
+## For Developers
 
-## Getting Started
+### Local Development
 
-### Docker Setup (Recommended)
-
-**Prerequisites:** Docker 20.10+ and Docker Compose 2.0+
+**Prerequisites:** Docker and Docker Compose
 
 ```bash
-git clone <repository-url>
+git clone https://github.com/yourusername/csi-to-icc.git
 cd csi-to-icc
 
-# Start services
-make dev              # Development mode with hot-reload
-# OR
-make up               # Production mode
+# Start all services (backend, frontend, database)
+make dev
 
 # View logs
 make logs
 
-# Access the application
+# Access locally
+# Frontend: http://localhost:3000
 # Backend API: http://localhost:8000/api/docs
-# Frontend: http://localhost:3000 (coming soon)
 ```
 
-See `DOCKER.md` or run `make help` for all available commands.
+See [DOCKER.md](DOCKER.md) for detailed setup instructions and [TODO.md](TODO.md) for planned features.
 
-### Manual Setup
-
-**Prerequisites:** Python 3.13+, PostgreSQL 14+, Node.js 20+
+### API Usage
 
 ```bash
-# Clone and setup
-git clone <repository-url>
-cd csi-to-icc/backend
-
-# Python environment
-python -m venv venv
-source venv/bin/activate  # Windows: venv\Scripts\activate
-pip install -r requirements.txt
-
-# Database
-createdb csi_icc_db
-cp .env.example .env      # Edit DATABASE_URL in .env
-alembic upgrade head
-
-# Run server
-uvicorn app.main:app --reload
-```
-
-API docs: `http://localhost:8000/api/docs`
-
-## API Usage
-
-```bash
-# Search for ICC sections
-curl -X POST http://localhost:8000/api/search \
+# Search for ICC sections by CSI code
+curl -X POST https://csi-to-icc-backend-production.up.railway.app/api/search \
   -H "Content-Type: application/json" \
-  -d '{"csi_code": "03 30 00", "state": "CO", "year": 2024}'
-
-# List CSI codes
-curl http://localhost:8000/api/csi-codes
+  -d '{"csi_code": "03 30 00"}'
 ```
 
-See full API documentation at `http://localhost:8000/api/docs`
-
-## Database Schema
-
-The application uses five main tables:
-
-1. **csi_codes** - CSI MasterFormat codes
-2. **icc_documents** - ICC code documents (IBC, IRC, etc.)
-3. **icc_sections** - Specific sections within ICC documents
-4. **csi_icc_mappings** - Relationships between CSI and ICC codes
-5. **state_amendments** - State-specific code modifications
-
-
-## Development
-
-**Database migrations:**
-```bash
-alembic revision --autogenerate -m "Description"
-alembic upgrade head
-```
-
-**Run tests:**
-```bash
-pytest
-```
-
-
-## Data Population
-
-Use the API to add CSI codes, ICC documents, sections, and mappings. See `/api/docs` for endpoint details and schemas.
+Full API documentation: [Backend API Docs](https://csi-to-icc-backend-production.up.railway.app/api/docs)
 
 ## Contributing
 
-Suggestions and feedback welcome! Please open an issue.
+Found a bug? Have a feature request? Open an issue!
+
+Want to add ICC code mappings? Contributions from construction professionals are especially welcome.
 
 ## License
 
@@ -133,4 +83,6 @@ MIT
 
 ## Acknowledgments
 
-Built to help civil engineers streamline code compliance. ICC codes are copyright International Code Council; CSI MasterFormat is maintained by the Construction Specifications Institute. This tool links to official sources rather than hosting copyrighted content.
+Built to help engineers and construction professionals work more efficiently.
+
+**Note:** ICC codes are copyrighted by the International Code Council. CSI MasterFormat is maintained by the Construction Specifications Institute. This tool links to official sources rather than hosting copyrighted content.

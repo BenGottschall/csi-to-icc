@@ -12,7 +12,7 @@ class CSICode(Base):
     __tablename__ = "csi_codes"
 
     id = Column(Integer, primary_key=True, index=True)
-    code = Column(String(10), unique=True, nullable=False, index=True)
+    code = Column(String(20), unique=True, nullable=False, index=True)
     division = Column(Integer, nullable=False, index=True)
     title = Column(String(255), nullable=False)
     description = Column(Text)

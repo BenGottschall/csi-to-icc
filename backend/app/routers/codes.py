@@ -159,8 +159,13 @@ def create_mapping(
 def search_codes(search_req: schemas.SearchRequest, db: Session = Depends(get_db)):
     """
     Search for ICC sections based on CSI code.
+
+    First checks for existing manual mappings, then falls back to
+    keyword-based matching if no mappings exist.
+
     Supports filtering by state, year, and ICC document type.
     """
+    # Try to get existing mapped results
     result = crud.search_csi_to_icc(
         db,
         csi_code=search_req.csi_code,
@@ -171,6 +176,58 @@ def search_codes(search_req: schemas.SearchRequest, db: Session = Depends(get_db
 
     if result is None:
         raise HTTPException(status_code=404, detail="CSI code not found")
+
+    # If no existing mappings, use keyword matching
+    if len(result.get("icc_sections", [])) == 0:
+        from app.keyword_matcher import KeywordMatcher
+        from app.models import CSICode
+
+        # Get the CSI code object
+        csi_code_obj = db.query(CSICode).filter(
+            CSICode.code == search_req.csi_code
+        ).first()
+
+        if csi_code_obj:
+            try:
+                # Initialize keyword matcher
+                matcher = KeywordMatcher()
+                matcher.initialize(
+                    db,
+                    icc_document_code=search_req.icc_document  # Filter by document if specified
+                )
+
+                # Find matches
+                matches = matcher.find_matches(
+                    csi_code_obj,
+                    top_n=10,
+                    min_score=0.1
+                )
+
+                # Convert matches to ICC sections with metadata
+                suggested_sections = []
+                for match in matches:
+                    section = match['section']
+                    # Manually load the document relationship if not already loaded
+                    from app.models import ICCDocument
+                    if not hasattr(section, 'document') or section.document is None:
+                        section.document = db.query(ICCDocument).filter(
+                            ICCDocument.id == section.document_id
+                        ).first()
+
+                    suggested_sections.append(section)
+
+                result["icc_sections"] = suggested_sections
+                result["total_results"] = len(suggested_sections)
+                result["source"] = "keyword_matching"
+
+            except Exception as e:
+                # If keyword matching fails, just return empty results
+                print(f"Keyword matching failed: {e}")
+                result["source"] = "no_mappings"
+        else:
+            result["source"] = "no_mappings"
+    else:
+        result["source"] = "manual_mappings"
 
     return result
 
